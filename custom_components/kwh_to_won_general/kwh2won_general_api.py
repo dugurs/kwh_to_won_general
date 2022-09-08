@@ -31,26 +31,6 @@ def merge(dict1, dict2):
 
 
 CALC_PARAMETER = {
-    'F1-low': { 'basic': 6160, },
-    'F1-high-A1': { 'basic': 7170, },
-    'F1-high-A2': { 'basic': 8230, },
-    'F1-high-B1': { 'basic': 7170, },
-    'F1-high-B2': { 'basic': 8230, },
-
-    'F2-high-A1': { 'basic': 7170, },
-    'F2-high-A2': { 'basic': 8230, },
-    'F2-high-B1': { 'basic': 7170, },
-    'F2-high-B2': { 'basic': 8230, },
-    'S-high-A1': { 'basic': 7220, },
-    'S-high-A2': { 'basic': 8320, },
-    'S-high-A3': { 'basic': 9810, },
-    'S-high-B1': { 'basic': 6630, },
-    'S-high-B2': { 'basic': 7380, },
-    'S-high-B3': { 'basic': 8190, },
-    'S-high-C1': { 'basic': 6590, },
-    'S-high-C2': { 'basic': 7520, }, 
-    'S-high-C3': { 'basic': 8090, },
-
     'dc': {
         'etc': {
             'a1': 16000, # 5인이상 가구,출산가구,3자녀이상 가구
@@ -80,6 +60,39 @@ CALC_PARAMETER = {
 # ^최대부하\t([0-9\.]+)\t([0-9\.]+)\t([0-9\.]+)
 # 바꿀말
 # 'S-high-': { 'section': [ [\1, \2, \3], [\4, \5, \6], [\7, \8, \9] ] },
+
+# 기본요금
+MONTHLY_PRICE_BASIC = {
+    '2101': {
+        'F1-low': { 'basic': 6160, },
+        'F1-high-A1': { 'basic': 7170, },
+        'F1-high-A2': { 'basic': 8230, },
+        'F1-high-B1': { 'basic': 7170, },
+        'F1-high-B2': { 'basic': 8230, },
+        'F2-high-A1': { 'basic': 7170, },
+        'F2-high-A2': { 'basic': 8230, },
+        'F2-high-B1': { 'basic': 7170, },
+        'F2-high-B2': { 'basic': 8230, },
+        'S-high-A1': { 'basic': 7220, },
+        'S-high-A2': { 'basic': 8320, },
+        'S-high-A3': { 'basic': 9810, },
+        'S-high-B1': { 'basic': 6630, },
+        'S-high-B2': { 'basic': 7380, },
+        'S-high-B3': { 'basic': 8190, },
+        'S-high-C1': { 'basic': 6590, },
+        'S-high-C2': { 'basic': 7520, }, 
+        'S-high-C3': { 'basic': 8090, },
+    }
+}
+
+# 환경비용차감 + 기후환경요금 + 연료비조정액
+MONTHLY_PRICE_ADJUSTMENT = {
+    '2101': { 'adjustment' : [5, 5.3, -3] },
+    '2109': { 'adjustment' : [5, 5.3, 0] },
+    '2204': { 'adjustment' : [6.7, 7.3, 0] },
+    '2207': { 'adjustment' : [6.7, 7.3, 5] },
+    '2210': { 'adjustment' : [6.7, 7.3, 0] }
+}
 
 MONTHLY_PRICE = {
     '2101': {
@@ -141,7 +154,7 @@ MONTHLY_PRICE = {
         'S-high-C1': { 'section': [ [64.3, 64.3, 71.2], [117.2, 87.2, 116.8], [198.1, 117.6, 173.4] ] },
         'S-high-C2': { 'section': [ [59.6, 59.6, 66.5], [112.5, 82.5, 112.1], [193.4, 112.9, 168.7] ] },
         'S-high-C3': { 'section': [ [58.5, 58.5, 65.4], [111.4, 81.4, 111], [192.3, 111.8, 167.6] ] },
-    },
+    }
 }
 
 
@@ -209,6 +222,7 @@ class kwh2won_api:
                 'elecBasicDc': 0, # 필수사용량보장공제
                 'diffWon': 0,    # 환경비용차감
                 'climateWon': 0, # 기후환경요금
+                'fuelWon': 0,    # 연료비조정액
                 'useDays': 0,    # 사용일수
                 'welfareDc': 0,  # 복지할인
                 'price': {} # 단가
@@ -223,20 +237,22 @@ class kwh2won_api:
                 'elecBasicDc': 0, # 필수사용량보장공제
                 'diffWon': 0,    # 환경비용차감
                 'climateWon': 0, # 기후환경요금
+                'fuelWon': 0,    # 연료비조정액
                 'useDays': 0,    # 사용일수
                 'welfareDc': 0,  # 복지할인
                 'price': {} # 단가
             },
             'basicWon': 0,   # 기본요금
-            'factorWon': 0,   # 역률요금
             'usekwhWon': 0,     # 전력량요금
-            'diffWon': 0,    # 환경비용차감
+            'diffWon': 0, # 환경비용차감
             'climateWon': 0, # 기후환경요금
-            'fuelWon': 0,    # 연료비조정액
+            'fuelWon': 0, # 연료비조정액
+            'factorWon': 0, # 역률요금
             'elecBasicDc': 0, # 필수사용량보장공제
             'elecBasic200Dc': 0, # 200kWh이하 감액
-            'welfareDc': 0,  # 복지 요금할인
-            'elecSumWon': 0,     # 전기요금계
+            'welfareDc': 0, # 복지 요금할인
+            'elecSumWon': 0, # 전기요금계
+            'zeorDc': 0, # 사용량0감액
             'vat': 0, # 부가가치세
             'baseFund': 0, # 전력산업기반기금
             'total': 0, # 청구금액
@@ -247,9 +263,9 @@ class kwh2won_api:
 
 
     # 당월 단가 찾기
-    def price_find(self, yymm):
+    def price_find(self, prices, yymm):
         cnt = -1
-        listym = list(MONTHLY_PRICE.keys())
+        listym = list(prices.keys())
         for ym in listym :
             if ym <= yymm:
                 cnt += 1
@@ -382,13 +398,18 @@ class kwh2won_api:
                 etc += monthleng
                 season = 'etc'
             yymm = ((year-2000)*100) + month
-            self._ret[mm]['yymm'] = f'{yymm}'
+            yymm = f'{yymm}'
+            self._ret[mm]['yymm'] = yymm
             self._ret[mm]['season'] = season
             self._ret[mm]['useDays'] = monthleng
 
-            priceYymm = self.price_find(f'{yymm}')
-            mmdiff.append(season + priceYymm)
-
+            basicYymm = self.price_find(MONTHLY_PRICE_BASIC, yymm)
+            adjustYymm = self.price_find(MONTHLY_PRICE_ADJUSTMENT, yymm)
+            priceYymm = self.price_find(MONTHLY_PRICE, yymm)
+            _LOGGER.debug(f'{mm} : season{season} + basic{basicYymm} + adjust{adjustYymm} + section{priceYymm}')
+            mmdiff.append(season + basicYymm + adjustYymm + priceYymm)
+            
+        # 연료비조정액 빼고 단가 바교해서 같으면 합치는 것으로 수정 해야 함.
         # 시즌이 같고, 단가가 같으면 사용일을 하나로 합치기
         if mmdiff[0] == mmdiff[1] :
             self._ret['mm1']['useDays'] += self._ret['mm2']['useDays']
@@ -402,9 +423,13 @@ class kwh2won_api:
     def set_price(self):
         for mm in ['mm1','mm2'] :
             yymm = self._ret[mm]['yymm'] # 사용연월
-            priceYymm = self.price_find(yymm)
-            price = merge(CALC_PARAMETER, MONTHLY_PRICE[priceYymm])
-            self._ret[mm]['price'] = price[self._ret['pressure']]
+            pressure = self._ret['pressure'] # 용도, 수전전압
+            basicYymm = self.price_find(MONTHLY_PRICE_BASIC, yymm) # 기본요금
+            adjustYymm = self.price_find(MONTHLY_PRICE_ADJUSTMENT, yymm) # 화경비용, 기후환경, 연료비조정
+            priceYymm = self.price_find(MONTHLY_PRICE, yymm) # 용도, 시즌 시간 별 단가
+            price = merge(MONTHLY_PRICE_BASIC[basicYymm][pressure], MONTHLY_PRICE_ADJUSTMENT[adjustYymm])
+            self._ret[mm]['price'] = merge(price, MONTHLY_PRICE[priceYymm][pressure])
+            pprint.pprint(self._ret[mm]['price'])
 
 
     # 기본요금(원미만 절사) : 30,800원
@@ -451,7 +476,7 @@ class kwh2won_api:
             seasonprice = self._ret[mm]['price']['section'][load][seasonNo]
             self._ret[mm]['usekwh'] = math.floor((self._ret['usekwh'] * seasonDays / self._ret['monthDays']) * 100) / 100
             self._ret[mm]['usekwhWon'] = math.floor(self._ret[mm]['usekwh'] * seasonprice * 100) / 100
-            _LOGGER.debug(f"전력량요금 {load} {self._ret[mm]['season']} {self._ret[mm]['usekwhWon']} = ( 사용량{self._ret[mm]['usekwh']} * 사용일수{seasonDays} / 월일수{self._ret['monthDays']} ) * 단가{seasonprice} ")
+            _LOGGER.debug(f"전력량요금 {load} {self._ret[mm]['season']} {self._ret[mm]['usekwhWon']} = 사용량{self._ret[mm]['usekwh']} * 단가{seasonprice} ")
         self._ret['usekwhWon'] = math.floor(self._ret['mm1']['usekwhWon'] + self._ret['mm2']['usekwhWon'])
         _LOGGER.debug(f"전력량요금 계 {self._ret['usekwhWon']} = {self._ret['mm1']['usekwhWon']} + {self._ret['mm2']['usekwhWon']}")
 
@@ -460,11 +485,33 @@ class kwh2won_api:
     # 496.4원 = 68kWh x 7.30원
     # 233.6원 = 32kWh x 7.30원
     #   * 전기요금 체계개편 적용일 전·후로 일수계산. 적용일 이후의 일수 반영
+    def calc_climate(self):
+        for mm in ['mm1','mm2'] :
+            seasonDays = self._ret[mm]['useDays'] # 사용일수
+            if (seasonDays == 0) :
+                continue
+            adjustment1 = self._ret[mm]['price']['adjustment'][1]
+            self._ret[mm]['climateWon'] = math.floor(self._ret[mm]['usekwh'] * adjustment1 * 100) / 100
+            _LOGGER.debug(f"기후환경요금 {self._ret[mm]['season']} {self._ret[mm]['climateWon']} = 사용량{self._ret[mm]['usekwh']} * 단가{adjustment1} ")
+        self._ret['climateWon'] = math.floor(self._ret['mm1']['climateWon'] + self._ret['mm2']['climateWon'])
+        _LOGGER.debug(f"기후환경요금 계 {self._ret['climateWon']} = {self._ret['mm1']['climateWon']} + {self._ret['mm2']['climateWon']}")
+
 
     # 연료비조정액(원미만 절사) : 500원
     # 340원 = 68kWh x 5.00원
     # 160원 = 32kWh x 5.00원
     #   * 연료비조정액은 일수계산 안 함
+    # 요금 산정기준은 검침일인데 6월1일부터6월30일 까지 사용한것을 7월1일 검침하는 것 
+    def calc_fuel(self):
+        # 검침 시작일의 한달 후를 구함.
+        d = datetime.date(self._ret['checkYear'], self._ret['checkMonth'], self._ret['checkDay'])
+        d = d + relativedelta(months=1)
+        yymm = d.strftime("%y%m")
+        adjustYymm = self.price_find(MONTHLY_PRICE_ADJUSTMENT,yymm)
+        adjustment2 = MONTHLY_PRICE_ADJUSTMENT[adjustYymm]['adjustment'][2]
+        self._ret['fuelWon'] = math.floor(self._ret['usekwh'] * adjustment2)
+        _LOGGER.debug(f"연료비조정액 {self._ret['fuelWon']} = 사용량{self._ret['usekwh']} * 단가{adjustment2} ")
+
 
     # 전기요금 = 기본요금 + 전력량요금 + 기후환경요금 + 연료비조정요금 + 역률요금 + 200kWh이하감액 + 필수사용량보장공제액 + 복지할인금액 + 사용량0감액
     # 42,710원 = 30,800원 + 9,264원 + 730원 + 500원 + 1,416원 + 0원 + 0원 + 0원 + 0원
@@ -477,7 +524,36 @@ class kwh2won_api:
 
     # 청구금액(전기요금계 ＋ 부가가치세 ＋ 전력산업기반기금)
     # : 42,710원 ＋ 4,271원 ＋ 1,580원 ＝ 48,560원(10원미만 절사)
+    def calc_total(salf):
+        # 전기요금
+        basicWon = salf._ret['basicWon'] # 기본요금
+        usekwhWon = salf._ret['usekwhWon'] # 전력량요금
+        climateWon = salf._ret['climateWon'] # 기후환경요금
+        fuelWon = salf._ret['fuelWon'] # 연료비조정요금
+        factorWon = salf._ret['factorWon'] # 역률요금
+        elecBasic200Dc = salf._ret['elecBasic200Dc'] # 200kWh이하감액
+        elecBasicDc = salf._ret['elecBasicDc'] # 필수사용량보장공제액
+        welfareDc = salf._ret['welfareDc'] # 복지할인금액
+        zeorDc = salf._ret['zeorDc'] # 사용량0감액
+        elecSumWon = basicWon + usekwhWon + climateWon + fuelWon + factorWon + elecBasic200Dc + elecBasicDc + welfareDc + zeorDc # 전기요금
+        salf._ret['elecSumWon'] = elecSumWon # 전기요금
+        _LOGGER.debug(f"전기요금{elecSumWon} = 기본요금{basicWon} + 전력량요금{usekwhWon} + 기후환경요금{climateWon} + 연료비조정요금{fuelWon} + 역률요금{factorWon} + 200kWh이하감액{elecBasic200Dc} + 필수사용량보장공제액{elecBasicDc} + 복지할인금액{welfareDc} + 사용량0감액{zeorDc}")
 
+        # 부가가치세 = 전기요금 x 10% (원미만반올림)
+        vat = round(elecSumWon * 0.1)
+        salf._ret['vat'] = vat
+        _LOGGER.debug(f"부가가치세{vat} = 전기요금{elecSumWon} x 10% ")
+
+
+        # 전력산업기반기금 = 전기요금 x 3.7% (10원미만 절사)
+        baseFund = math.floor( elecSumWon * 0.037 / 10 ) * 10
+        salf._ret['baseFund'] = baseFund
+        _LOGGER.debug(f"전력산업기반기금{baseFund} = 전기요금{elecSumWon} x 3.7% ")
+
+        # 청구금액 (전기요금계 ＋ 부가가치세 ＋ 전력산업기반기금)
+        total = elecSumWon + vat + baseFund
+        salf._ret['total'] = total
+        _LOGGER.debug(f"청구금액{total} = 전기요금{elecSumWon} + 부가가치세{vat} + 전력산업기반기금{baseFund} ")
 
 
 
@@ -501,12 +577,9 @@ class kwh2won_api:
         self.calc_basic() # 기본요금
         self.calc_factor() # 역률요금
         self.calc_usekwh() # 전력량요금
-        # 기후환경요금
-        # 연료비조정액
-        # 합계
-        # 부가세
-        # 전력산업기금
-        # 청구금액
+        self.calc_climate() # 기후환경요금
+        self.calc_fuel() # 연료비조정액
+        self.calc_total() # 청구금액
         
         return self._ret
 
@@ -515,7 +588,7 @@ class kwh2won_api:
 cfg = {
     'pressure' : 'F1-low',
     'checkDay' : 11, # 검침일
-    'today' : datetime.datetime(2022,7,20, 22,42,0), # 오늘
+    'today' : datetime.datetime(2022,6,20, 22,42,0), # 오늘
     'contractKWh': 5, # 계약전력
     'lagging' : 81, # 지상역률 
     'leading' : 95, # 진상역률
@@ -527,4 +600,4 @@ K2W = kwh2won_api(cfg)
 ret = K2W.kwh2won(100)
 # K2W.calc_lengthDays()
 # forc = K2W.energy_forecast(17)
-# # pprint.pprint(ret)
+# pprint.pprint(ret)
