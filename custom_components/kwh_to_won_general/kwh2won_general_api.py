@@ -4,14 +4,14 @@ from dateutil.relativedelta import relativedelta
 import logging
 _LOGGER = logging.getLogger(__name__)
 
-# # 로그의 출력 기준 설정
-# _LOGGER.setLevel(logging.DEBUG)
-# # log 출력 형식
-# formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-# # log 출력
-# stream_handler = logging.StreamHandler()
-# stream_handler.setFormatter(formatter)
-# _LOGGER.addHandler(stream_handler)
+# 로그의 출력 기준 설정
+_LOGGER.setLevel(logging.DEBUG)
+# log 출력 형식
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# log 출력
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(formatter)
+_LOGGER.addHandler(stream_handler)
 
 import collections
 from copy import deepcopy
@@ -583,25 +583,26 @@ class kwh2won_api:
 
 
 
-    def kwh2won(self, usekwh=0, minkwh=0, medkwh=0, maxkwh=0, today=None) :
+    def kwh2won(self, usekwh={'usekwh':0, 'minkwh':0, 'medkwh':0, 'maxkwh':0, 'lagging':90, 'leading':95}, today=None) :
         
         pressure = self._ret['pressure'].split('-')
         if pressure[0] == 'F1': 
-            usekwh = float(usekwh)
+            usekwh = float(usekwh['usekwh'])
             self._ret['usekwh'] = usekwh
             _LOGGER.debug(f'########### 전기사용량 : usekwh{usekwh}')
         else:
-            usekwh = float(usekwh)
-            minkwh = float(minkwh)
-            medkwh = float(medkwh)
-            maxkwh = float(maxkwh)
-            usekwh =  minkwh + medkwh + maxkwh
-            self._ret['usekwh'] = usekwh
+            minkwh = float(usekwh['minkwh'])
+            medkwh = float(usekwh['medkwh'])
+            maxkwh = float(usekwh['maxkwh'])
+            usekwh1 =  minkwh + medkwh + maxkwh
+            self._ret['usekwh'] = usekwh1
             self._ret['minkwh'] = minkwh
             self._ret['medkwh'] = medkwh
             self._ret['maxkwh'] = maxkwh
-            _LOGGER.debug(f'########### 전기사용량 : usekwh{usekwh}, minkwh{minkwh}, medkwh{medkwh}, maxkwh{maxkwh}')
+            _LOGGER.debug(f'########### 전기사용량 : usekwh{usekwh1}, minkwh{minkwh}, medkwh{medkwh}, maxkwh{maxkwh}')
 
+        self._ret['lagging'] = usekwh['lagging']
+        self._ret['leading'] = usekwh['leading']
         if today:
             self._ret['today'] = today
 
@@ -638,10 +639,17 @@ class kwh2won_api:
 #     'leading': 91, # 진상역률
 #     'welfareDcCfg': 0, # 복지 요금할인 1: 사회복지시설
 # }
-
+# usekwh = {
+#     'usekwh':0,
+#     'minkwh':0,
+#     'medkwh':0,
+#     'maxkwh':0,
+#     'lagging':90,
+#     'leading':95
+# }
 # import pprint
 # K2W = kwh2won_api(cfg)
-# ret = K2W.kwh2won(0,20,50,30) # 
+# ret = K2W.kwh2won(usekwh) # 
 # # K2W.calc_lengthDays()
 # # forc = K2W.energy_forecast(17)
 # # pprint.pprint(ret)

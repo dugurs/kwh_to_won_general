@@ -1,0 +1,55 @@
+{
+    "title": "Electricity bill sensor (일반용 갑1)",
+    "config": {
+        "step": {
+            "confirm": {
+                "description": "Do you want to install?"
+            },
+            "user": {
+                "data": {
+                    "device_name": "Enter the name of the device to be created",
+                    "checkday_config": "Please select the reading date",
+                    "pressure_config": "Please select the contract purpose",
+                    "contractKWh_config": "Please enter the contract power",
+                    "welfare_dc_config": "Discount Select Applicable (Welfare)",
+                    "lagging_entity": "Please enter a lag power factor sensor",
+                    "leading_entity": "Please enter leading power factor sensor",
+                    "usekwh_entity": "Select a monthly electricity usage sensor",
+                    "prev_usekwh_entity": "Select a previous month's electricity usage sensor",
+                    "prev_lagging_entity": "Enter the previous month's ground power factor sensor",
+                    "prev_leading_entity": "Enter the leading power factor sensor for the previous month",
+                    "calibration_config": "calibration factor. If 0 it is not used. (Actual usage / Measured usage = Calibration factor)"
+                }
+            }
+
+        },
+        "abort": {
+            "already_configured": "[%key:common::config_flow::abort::already_configured%]",
+            "cannot_connect": "cannot connect"
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Electricity bill sensor option",
+                "data": {
+                    "checkday_config": "Please select the reading date",
+                    "pressure_config": "Please select the contract purpose",
+                    "contractKWh_config": "Please enter the contract power",
+                    "welfare_dc_config": "Discount Select Applicable (Welfare)",
+                    "lagging_entity": "Please enter a lag power factor sensor",
+                    "leading_entity": "Please enter leading power factor sensor",
+                    "usekwh_entity": "Select a monthly electricity usage sensor",
+                    "prev_usekwh_entity": "Select a previous month's electricity usage sensor",
+                    "prev_lagging_entity": "Enter the previous month's ground power factor sensor",
+                    "prev_leading_entity": "Enter the leading power factor sensor for the previous month",
+                    "calibration_config": "calibration factor. If 0 it is not used. (Actual usage / Measured usage = Calibration factor)"
+                }
+            }
+        },
+        "abort": {
+            "already_configured": "[%key:common::config_flow::abort::already_configured%]",
+            "cannot_connect": "cannot connect"
+        }
+    }
+}
