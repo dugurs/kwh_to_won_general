@@ -477,10 +477,8 @@ class kwh2won_api:
                 self._ret[mm][load] = round(self._ret[load] * seasonDays / self._ret['monthDays'])
                 self._ret[mm][load+'Won'] = round(self._ret[mm][load] * seasonprice, 4)
                 _LOGGER.debug(f"전력량요금 {self._ret[mm]['season']} {load} {self._ret[mm][load+'Won']} = 사용량{self._ret[mm][load]} * 단가{seasonprice} ")
-            self._ret[mm]['usekwh'] = round(self._ret[mm]['minkwh'] + self._ret[mm]['medkwh'] + self._ret[mm]['maxkwh'])
             self._ret[mm]['usekwhWon'] = round(self._ret[mm]['minkwhWon'] + self._ret[mm]['medkwhWon'] + self._ret[mm]['maxkwhWon'])
             _LOGGER.debug(f"전력량요금 {self._ret[mm]['season']} 계 {self._ret[mm]['usekwhWon']} = minkwhWon{self._ret[mm]['minkwhWon']} + medkwhWon{self._ret[mm]['medkwhWon']} + maxkwhWon{self._ret[mm]['maxkwhWon']} ")
-        self._ret['usekwh'] = math.floor(self._ret['mm1']['usekwh'] + self._ret['mm2']['usekwh'])
         self._ret['usekwhWon'] = math.floor(self._ret['mm1']['usekwhWon'] + self._ret['mm2']['usekwhWon'])
         _LOGGER.debug(f"전력량요금 계 {self._ret['usekwhWon']} = {self._ret['mm1']['usekwhWon']} + {self._ret['mm2']['usekwhWon']}")
 
