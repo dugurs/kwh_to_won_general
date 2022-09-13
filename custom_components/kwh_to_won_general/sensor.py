@@ -64,7 +64,7 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
 
     for sensor_type in SENSOR_TYPES:
         if sensor_type == "kwhto_won_prev":
-            if (prev_usekwh_entity == None):
+            if (prev_usekwh_entity == None or prev_usekwh_entity == ''):
                 continue
             else:
                 lagging_entity = prev_lagging_entity
