@@ -345,7 +345,7 @@ class ExtendSensor(SensorBase):
                 self._extra_state_attributes['검침시작일'] = str(forcest['checkMonth']) +'월 '+ str(forcest['checkDay']) + '일'
                 self._extra_state_attributes['사용일수'] = forcest['useDays']
                 self._extra_state_attributes['남은일수'] = forcest['monthDays'] - forcest['useDays']
-                if self._en_usekwhergy < self._prev_usekwh :
+                if self._usekwh < self._prev_usekwh :
                     self._extra_state_attributes['last_reset'] = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
             else :
                 if self._sensor_type == "kwhto_won": # 전기 사용 요금

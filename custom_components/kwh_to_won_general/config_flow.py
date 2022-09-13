@@ -14,23 +14,23 @@ from .const import DOMAIN, WELFARE_DC_OPTION, PRESSURE_OPTION
 # _LOGGER = logging.getLogger(__name__)
 
 OPTION_LIST = [
-    ("checkday_config", 1, vol.All(vol.Coerce(float), vol.Range(min=0, max=30))),
-    ("pressure_config", "F1-low", vol.In(PRESSURE_OPTION)),
-    ("contractKWh_config", 1, vol.All(vol.Coerce(float), vol.Range(min=0))),
-    ("welfare_dc_config", 0, vol.In(WELFARE_DC_OPTION)),
-    ("lagging_entity", "", str),
-    ("leading_entity", "", str),
-    ("usekwh_entity", "", str),
-    # ("minkwh_entity", "", str),
-    # ("medkwh_entity", "", str),
-    # ("maxkwh_entity", "", str),
-    ("prev_lagging_entity", "", str),
-    ("prev_leading_entity", "", str),
-    ("prev_usekwh_entity", "", str),
-    # ("prev_minkwh_entity", "", str),
-    # ("prev_medkwh_entity", "", str),
-    # ("prev_maxkwh_entity", "", str),
-    ("calibration_config", 0, vol.All(vol.Coerce(float), vol.Range(min=0, max=2)))
+    ("checkday_config", "required", 1, vol.All(vol.Coerce(float), vol.Range(min=0, max=30))),
+    ("pressure_config", "required", "F1-low", vol.In(PRESSURE_OPTION)),
+    ("contractKWh_config", "required", 1, vol.All(vol.Coerce(float), vol.Range(min=0))),
+    ("welfare_dc_config", "required", 0, vol.In(WELFARE_DC_OPTION)),
+    ("lagging_entity", "required", "", str),
+    ("leading_entity", "required", "", str),
+    ("usekwh_entity", "required", "", str),
+    # ("minkwh_entity", "required", "", str),
+    # ("medkwh_entity", "required", "", str),
+    # ("maxkwh_entity", "required", "", str),
+    ("prev_lagging_entity", "optional", "", str),
+    ("prev_leading_entity", "optional", "", str),
+    ("prev_usekwh_entity", "optional", "", str),
+    # ("prev_minkwh_entity", "optional", "", str),
+    # ("prev_medkwh_entity", "optional", "", str),
+    # ("prev_maxkwh_entity", "optional", "", str),
+    ("calibration_config", "required", 0, vol.All(vol.Coerce(float), vol.Range(min=0, max=2)))
 ]
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -46,13 +46,16 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return self.async_create_entry(title=user_input['device_name'], data=user_input)
 
         data_schema = {vol.Required('device_name'): str}
-        for name, default, validation in OPTION_LIST:
-            if name in ['pressure_config','welfare_dc_config']:
+        for name, required, default, validation in OPTION_LIST:
+            if required == "required":
                 key = (
                     vol.Required(name, default=default)
                 )
-                value = to_replace.get(name, validation)
-                data_schema[key] = value
+            else:
+                key = (
+                    vol.Optional(name, default=default)
+                )
+            data_schema[key] = validation
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(data_schema),
@@ -93,13 +96,17 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             return self.async_create_entry(title="", data=user_input)
 
         options_schema = {}
-        for name, default, validation in OPTION_LIST:
+        for name, required, default, validation in OPTION_LIST:
             to_default = conf.options.get(name, conf.data.get(name, default))
-            key = (
-                vol.Required(name, default=to_default)
-            )
-            value = to_replace.get(name, validation)
-            options_schema[key] = value
+            if required == "required":
+                key = (
+                    vol.Required(name, default=to_default)
+                )
+            else:
+                key = (
+                    vol.Optional(name, default=to_default)
+                )
+            options_schema[key] = validation
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(options_schema),

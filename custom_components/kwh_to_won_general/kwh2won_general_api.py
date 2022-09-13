@@ -400,7 +400,6 @@ class kwh2won_api:
             priceYymm = self.price_find(MONTHLY_PRICE_SECTION, yymm) # 용도, 시즌 시간 별 단가
             price = merge(MONTHLY_PRICE_BASIC[basicYymm][pressure], MONTHLY_PRICE_ADJUSTMENT[adjustYymm])
             self._ret[mm]['price'] = merge(price, MONTHLY_PRICE_SECTION[priceYymm][pressure])
-            pprint.pprint(self._ret[mm]['price'])
 
 
     # 계약전력 5kW, 월간 100kWh 사용시 전기요금 계산, 역률(지상:71%, 진상:91%) 2022/08/11~2022/09/10
@@ -478,8 +477,10 @@ class kwh2won_api:
                 self._ret[mm][load] = round(self._ret[load] * seasonDays / self._ret['monthDays'])
                 self._ret[mm][load+'Won'] = round(self._ret[mm][load] * seasonprice, 4)
                 _LOGGER.debug(f"전력량요금 {self._ret[mm]['season']} {load} {self._ret[mm][load+'Won']} = 사용량{self._ret[mm][load]} * 단가{seasonprice} ")
+            self._ret[mm]['usekwh'] = round(self._ret[mm]['minkwh'] + self._ret[mm]['medkwh'] + self._ret[mm]['maxkwh'])
             self._ret[mm]['usekwhWon'] = round(self._ret[mm]['minkwhWon'] + self._ret[mm]['medkwhWon'] + self._ret[mm]['maxkwhWon'])
             _LOGGER.debug(f"전력량요금 {self._ret[mm]['season']} 계 {self._ret[mm]['usekwhWon']} = minkwhWon{self._ret[mm]['minkwhWon']} + medkwhWon{self._ret[mm]['medkwhWon']} + maxkwhWon{self._ret[mm]['maxkwhWon']} ")
+        self._ret['usekwh'] = math.floor(self._ret['mm1']['usekwh'] + self._ret['mm2']['usekwh'])
         self._ret['usekwhWon'] = math.floor(self._ret['mm1']['usekwhWon'] + self._ret['mm2']['usekwhWon'])
         _LOGGER.debug(f"전력량요금 계 {self._ret['usekwhWon']} = {self._ret['mm1']['usekwhWon']} + {self._ret['mm2']['usekwhWon']}")
 
@@ -528,11 +529,12 @@ class kwh2won_api:
         # elecBasic200Dc = self._ret['elecBasic200Dc'] # 200kWh이하감액
         # elecBasicDc = self._ret['elecBasicDc'] # 필수사용량보장공제액
         welfareDcWon = self._ret['welfareDcWon'] # 복지할인금액
+        zeorDcWon = 0  # 사용량0감액
         # 사용량0감액
         if (self._ret['usekwh'] == 0):
-            self._ret['zeorDcWon'] = basicWon / -2
-            _LOGGER.debug(f"사용량0감액{self._ret['zeorDcWon']} = 기본요금{basicWon} / -50%")
-        zeorDcWon = self._ret['zeorDcWon'] # 사용량0감액
+            zeorDcWon = basicWon / -2
+            _LOGGER.debug(f"사용량0감액{zeorDcWon} = 기본요금{basicWon} / -50%")
+        self._ret['zeorDcWon'] = zeorDcWon # 사용량0감액
         elecSumWon = basicWon + usekwhWon + climateWon + fuelWon + factorWon + welfareDcWon + zeorDcWon # 전기요금
         self._ret['elecSumWon'] = elecSumWon # 전기요금
         _LOGGER.debug(f"전기요금{elecSumWon} = 기본요금{basicWon} + 전력량요금{usekwhWon} + 기후환경요금{climateWon} + 연료비조정요금{fuelWon} + 역률요금{factorWon} + 복지할인금액{welfareDcWon} + 사용량0감액{zeorDcWon}")
@@ -587,9 +589,9 @@ class kwh2won_api:
         
         pressure = self._ret['pressure'].split('-')
         if pressure[0] == 'F1': 
-            usekwh = float(usekwh['usekwh'])
-            self._ret['usekwh'] = usekwh
-            _LOGGER.debug(f'########### 전기사용량 : usekwh{usekwh}')
+            usekwh1 = float(usekwh['usekwh'])
+            self._ret['usekwh'] = usekwh1
+            _LOGGER.debug(f"########### 전기사용량 : usekwh{usekwh1}, lagging{usekwh['lagging']}, leading{usekwh['leading']}")
         else:
             minkwh = float(usekwh['minkwh'])
             medkwh = float(usekwh['medkwh'])
@@ -599,7 +601,7 @@ class kwh2won_api:
             self._ret['minkwh'] = minkwh
             self._ret['medkwh'] = medkwh
             self._ret['maxkwh'] = maxkwh
-            _LOGGER.debug(f'########### 전기사용량 : usekwh{usekwh1}, minkwh{minkwh}, medkwh{medkwh}, maxkwh{maxkwh}')
+            _LOGGER.debug(f"########### 전기사용량 : usekwh{usekwh1}, lagging{usekwh['lagging']}, leading{usekwh['leading']}, minkwh{minkwh}, medkwh{medkwh}, maxkwh{maxkwh}")
 
         self._ret['lagging'] = usekwh['lagging']
         self._ret['leading'] = usekwh['leading']
