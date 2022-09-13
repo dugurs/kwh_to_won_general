@@ -1,5 +1,5 @@
 {
-    "title": "Electricity bill sensor (일반용 갑1)",
+    "title": "Electricity bill sensor (일반용)",
     "config": {
         "step": {
             "confirm": {
