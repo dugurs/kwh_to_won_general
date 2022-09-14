@@ -8,16 +8,16 @@
             "user": {
                 "data": {
                     "device_name": "생성할 기기의 이름을 입력하세요",
-                    "checkday_config": "검침일을 입력하세요 (시작일)",
+                    "checkday_config": "검침일을 선택하세요 (시작일)",
                     "pressure_config": "사용용도를 선택하세요",
                     "contractKWh_config": "계약전력을 입력하세요",
                     "welfare_dc_config": "복지할인 해당사항을 선택하세요",
-                    "lagging_entity": "지상역률 센서를 입력하세요",
-                    "leading_entity": "진상역률 센서를 입력하세요",
                     "usekwh_entity": "월간 전기 사용량 센서를 입력하세요",
-                    "prev_lagging_entity": "전월 지상역률 센서를 입력하세요(선택사항)",
-                    "prev_leading_entity": "전월 진상역률 센서를 입력하세요(선택사항)",
+                    "lagging_entity": "지상역률센서 혹은 값를 입력하세요(선택사항 기본값90)",
+                    "leading_entity": "진상역률센서 혹은 값를 입력하세요(선택사항 기본값95)",
                     "prev_usekwh_entity": "전월 월간 전기 사용량 센서를 입력하세요(선택사항)",
+                    "prev_lagging_entity": "전월 지상역률센서 혹은 값를 입력하세요(선택사항)",
+                    "prev_leading_entity": "전월 진상역률센서 혹은 값를 입력하세요(선택사항)",
                     "calibration_config": "사용량 보정계수. 0이면 사용안함. (실제사용량 / 측정사용량 = 보정계수)"
                 }
             }
@@ -31,18 +31,18 @@
     "options": {
         "step": {
             "init": {
-                "title": "전기요금 센서 옵션 (일반용 갑1)",
+                "title": "전기요금 계산 센서 (일반용)",
                 "data": {
-                    "checkday_config": "검침일을 입력하세요 (시작일)",
+                    "checkday_config": "검침일을 선택하세요 (시작일)",
                     "pressure_config": "사용용도를 선택하세요",
                     "contractKWh_config": "계약전력을 입력하세요",
                     "welfare_dc_config": "복지할인 해당사항을 선택하세요",
-                    "lagging_entity": "지상역률 센서를 입력하세요",
-                    "leading_entity": "진상역률 센서를 입력하세요",
                     "usekwh_entity": "월간 전기 사용량 센서를 입력하세요",
-                    "prev_lagging_entity": "전월 지상역률 센서를 입력하세요(선택사항)",
-                    "prev_leading_entity": "전월 진상역률 센서를 입력하세요(선택사항)",
+                    "lagging_entity": "지상역률센서 혹은 값를 입력하세요(선택사항 기본값90)",
+                    "leading_entity": "진상역률센서 혹은 값를 입력하세요(선택사항 기본값95)",
                     "prev_usekwh_entity": "전월 월간 전기 사용량 센서를 입력하세요(선택사항)",
+                    "prev_lagging_entity": "전월 지상역률센서 혹은 값를 입력하세요(선택사항)",
+                    "prev_leading_entity": "전월 진상역률센서 혹은 값를 입력하세요(선택사항)",
                     "calibration_config": "사용량 보정계수. 0이면 사용안함. (실제사용량 / 측정사용량 = 보정계수)"
                 }
             }

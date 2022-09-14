@@ -6,6 +6,7 @@
 # what the unit is, so it can display the correct range. For predefined types (such as
 # battery), the unit_of_measurement should match what's expected.
 import logging
+from tokenize import Number
 from typing import Optional
 from homeassistant.const import (
     STATE_UNKNOWN,
@@ -50,11 +51,11 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
     pressure_config = config_entry.options.get("pressure_config", config_entry.data.get("pressure_config"))
     contractKWh_config = config_entry.options.get("contractKWh_config", config_entry.data.get("contractKWh_config"))
     welfare_dc_config = int(config_entry.options.get("welfare_dc_config", config_entry.data.get("welfare_dc_config")))
-    lagging_entity = config_entry.options.get("lagging_entity", config_entry.data.get("lagging_entity"))
-    leading_entity = config_entry.options.get("leading_entity", config_entry.data.get("leading_entity"))
+    lagging_entity = config_entry.options.get("lagging_entity", config_entry.data.get("lagging_entity", 90))
+    leading_entity = config_entry.options.get("leading_entity", config_entry.data.get("leading_entity", 95))
     usekwh_entity = config_entry.options.get("usekwh_entity", config_entry.data.get("usekwh_entity"))
-    prev_lagging_entity = config_entry.options.get("prev_lagging_entity", config_entry.data.get("prev_lagging_entity"))
-    prev_leading_entity = config_entry.options.get("prev_leading_entity", config_entry.data.get("prev_leading_entity"))
+    prev_lagging_entity = config_entry.options.get("prev_lagging_entity", config_entry.data.get("prev_lagging_entity", 90))
+    prev_leading_entity = config_entry.options.get("prev_leading_entity", config_entry.data.get("prev_leading_entity", 95))
     prev_usekwh_entity = config_entry.options.get("prev_usekwh_entity", config_entry.data.get("prev_usekwh_entity"))
     calibration_config = config_entry.options.get("calibration_config", config_entry.data.get("calibration_config"))
 
@@ -219,9 +220,7 @@ class ExtendSensor(SensorBase):
         self._usekwh = None
         self._usekwh_row = None
         self._lagging = None
-        self._lagging_row = None
         self._leading = None
-        self._leading_row = None
 
         cfg = {
             'pressure' : pressure_config, # 저압고압
@@ -235,12 +234,16 @@ class ExtendSensor(SensorBase):
         self._usekwh_row = self._usekwh
         self.hass.states.get(self._usekwh_entity)
 
-        self._lagging = self.setStateListener(hass, self._lagging_entity, self.lagging_state_listener)
-        self._lagging_row = self._lagging
+        if self._lagging_entity.isdigit() == True: 
+            self._lagging = int(self._lagging_entity)
+        else:
+            self._lagging = self.setStateListener(hass, self._lagging_entity, self.lagging_state_listener)
         self.hass.states.get(self._lagging_entity)
 
-        self._leading = self.setStateListener(hass, self._leading_entity, self.leading_state_listener)
-        self._leading_row = self._leading
+        if self._leading_entity.isdigit() == True: 
+            self._leading = int(self._leading_entity)
+        else:
+            self._leading = self.setStateListener(hass, self._leading_entity, self.leading_state_listener)
         self.hass.states.get(self._leading_entity)
         self.update()
 
@@ -263,14 +266,12 @@ class ExtendSensor(SensorBase):
         """Handle temperature device state changes."""
         if _is_valid_state(new_state):
             self._lagging = util.convert(new_state.state, float)
-            self._lagging_row = self._lagging
         self.async_schedule_update_ha_state(True)
 
     def leading_state_listener(self, entity, old_state, new_state):
         """Handle temperature device state changes."""
         if _is_valid_state(new_state):
             self._leading = util.convert(new_state.state, float)
-            self._leading_row = self._leading
         self.async_schedule_update_ha_state(True)
 
 
@@ -359,6 +360,8 @@ class ExtendSensor(SensorBase):
                     self._extra_state_attributes['예상사용량'] = forcest['forcest']
                 self._state = ret['total']
                 self._extra_state_attributes['사용량'] = self._usekwh
+                self._extra_state_attributes['지상역률'] = self._lagging
+                self._extra_state_attributes['진상역률'] = self._leading
                 self._extra_state_attributes['검침시작일'] = str(ret['checkMonth']) +'월 '+ str(ret['checkDay']) + '일'
                 self._extra_state_attributes['사용일수'] = ret['useDays']
                 self._extra_state_attributes['남은일수'] = ret['monthDays'] - ret['useDays']

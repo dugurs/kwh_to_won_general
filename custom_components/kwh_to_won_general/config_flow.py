@@ -8,25 +8,25 @@ from homeassistant.core import callback
 
 from homeassistant import config_entries
 
-from .const import DOMAIN, WELFARE_DC_OPTION, PRESSURE_OPTION
+from .const import DOMAIN, WELFARE_DC_OPTION, PRESSURE_OPTION, CHECKDAY_OPTION
 
 # import logging
 # _LOGGER = logging.getLogger(__name__)
 
 OPTION_LIST = [
-    ("checkday_config", "required", 1, vol.All(vol.Coerce(float), vol.Range(min=0, max=30))),
+    ("checkday_config", "required", 1, vol.In(CHECKDAY_OPTION)),
     ("pressure_config", "required", "F1-low", vol.In(PRESSURE_OPTION)),
     ("contractKWh_config", "required", 1, vol.All(vol.Coerce(float), vol.Range(min=0))),
     ("welfare_dc_config", "required", 0, vol.In(WELFARE_DC_OPTION)),
-    ("lagging_entity", "required", "", str),
-    ("leading_entity", "required", "", str),
     ("usekwh_entity", "required", "", str),
+    ("lagging_entity", "optional", "", str),
+    ("leading_entity", "optional", "", str),
     # ("minkwh_entity", "required", "", str),
     # ("medkwh_entity", "required", "", str),
     # ("maxkwh_entity", "required", "", str),
+    ("prev_usekwh_entity", "optional", "", str),
     ("prev_lagging_entity", "optional", "", str),
     ("prev_leading_entity", "optional", "", str),
-    ("prev_usekwh_entity", "optional", "", str),
     # ("prev_minkwh_entity", "optional", "", str),
     # ("prev_medkwh_entity", "optional", "", str),
     # ("prev_maxkwh_entity", "optional", "", str),
