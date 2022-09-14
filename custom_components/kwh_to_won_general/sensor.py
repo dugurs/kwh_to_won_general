@@ -51,11 +51,11 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
     pressure_config = config_entry.options.get("pressure_config", config_entry.data.get("pressure_config"))
     contractKWh_config = config_entry.options.get("contractKWh_config", config_entry.data.get("contractKWh_config"))
     welfare_dc_config = int(config_entry.options.get("welfare_dc_config", config_entry.data.get("welfare_dc_config")))
-    lagging_entity = config_entry.options.get("lagging_entity", config_entry.data.get("lagging_entity", 90))
-    leading_entity = config_entry.options.get("leading_entity", config_entry.data.get("leading_entity", 95))
+    lagging_entity = config_entry.options.get("lagging_entity", config_entry.data.get("lagging_entity"))
+    leading_entity = config_entry.options.get("leading_entity", config_entry.data.get("leading_entity"))
     usekwh_entity = config_entry.options.get("usekwh_entity", config_entry.data.get("usekwh_entity"))
-    prev_lagging_entity = config_entry.options.get("prev_lagging_entity", config_entry.data.get("prev_lagging_entity", 90))
-    prev_leading_entity = config_entry.options.get("prev_leading_entity", config_entry.data.get("prev_leading_entity", 95))
+    prev_lagging_entity = config_entry.options.get("prev_lagging_entity", config_entry.data.get("prev_lagging_entity"))
+    prev_leading_entity = config_entry.options.get("prev_leading_entity", config_entry.data.get("prev_leading_entity"))
     prev_usekwh_entity = config_entry.options.get("prev_usekwh_entity", config_entry.data.get("prev_usekwh_entity"))
     calibration_config = config_entry.options.get("calibration_config", config_entry.data.get("calibration_config"))
 
@@ -215,12 +215,10 @@ class ExtendSensor(SensorBase):
             self._extra_state_attributes['last_reset'] = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
 
         self._usekwh_entity = usekwh_entity # energy 엔터티
-        self._lagging_entity = lagging_entity # energy 엔터티
-        self._leading_entity = leading_entity # energy 엔터티
-        self._usekwh = None
-        self._usekwh_row = None
-        self._lagging = None
-        self._leading = None
+        self._usekwh = 0
+        self._usekwh_row = 0
+        self._lagging = 90
+        self._leading = 95
 
         cfg = {
             'pressure' : pressure_config, # 저압고압
@@ -234,17 +232,21 @@ class ExtendSensor(SensorBase):
         self._usekwh_row = self._usekwh
         self.hass.states.get(self._usekwh_entity)
 
-        if self._lagging_entity.isdigit() == True: 
-            self._lagging = int(self._lagging_entity)
+        if lagging_entity == '':
+            lagging_entity = "90"
+        if lagging_entity.isdigit(): 
+            self._lagging = int(lagging_entity)
         else:
-            self._lagging = self.setStateListener(hass, self._lagging_entity, self.lagging_state_listener)
-        self.hass.states.get(self._lagging_entity)
+            self._lagging = self.setStateListener(hass, lagging_entity, self.lagging_state_listener)
+        self.hass.states.get(lagging_entity)
 
-        if self._leading_entity.isdigit() == True: 
-            self._leading = int(self._leading_entity)
+        if leading_entity == '':
+            leading_entity = "95"
+        if leading_entity.isdigit(): 
+            self._leading = int(leading_entity)
         else:
-            self._leading = self.setStateListener(hass, self._leading_entity, self.leading_state_listener)
-        self.hass.states.get(self._leading_entity)
+            self._leading = self.setStateListener(hass, leading_entity, self.leading_state_listener)
+        self.hass.states.get(leading_entity)
         self.update()
 
     def setStateListener(self, hass, entity, listener):
