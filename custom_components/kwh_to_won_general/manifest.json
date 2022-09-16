@@ -1,8 +1,8 @@
 {
   "domain": "kwh_to_won_general",
-  "name": "kWh to Won General",
+  "name": "kWh to Won (General)",
   "config_flow": true,
-  "documentation": "https://github.com/dugurs/kwh2wongeneral",
+  "documentation": "https://github.com/dugurs/kwh_to_won_general",
   "requirements": [],
   "ssdp": [],
   "zeroconf": [],
