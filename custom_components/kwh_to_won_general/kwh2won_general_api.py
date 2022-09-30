@@ -4,14 +4,14 @@ from dateutil.relativedelta import relativedelta
 import logging
 _LOGGER = logging.getLogger(__name__)
 
-# 로그의 출력 기준 설정
-_LOGGER.setLevel(logging.DEBUG)
-# log 출력 형식
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-# log 출력
-stream_handler = logging.StreamHandler()
-stream_handler.setFormatter(formatter)
-_LOGGER.addHandler(stream_handler)
+# # 로그의 출력 기준 설정
+# _LOGGER.setLevel(logging.DEBUG)
+# # log 출력 형식
+# formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# # log 출력
+# stream_handler = logging.StreamHandler()
+# stream_handler.setFormatter(formatter)
+# _LOGGER.addHandler(stream_handler)
 
 import collections
 from copy import deepcopy
