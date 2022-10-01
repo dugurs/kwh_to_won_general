@@ -79,7 +79,7 @@ MONTHLY_PRICE_ADJUSTMENT = {
     '2109': { 'adjustment' : [5, 5.3, 0] },
     '2204': { 'adjustment' : [6.7, 7.3, 0] },
     '2207': { 'adjustment' : [6.7, 7.3, 5] },
-    '2210': { 'adjustment' : [6.7, 7.3, 0] }
+    '2210': { 'adjustment' : [6.7, 7.3, 5] }
 }
 
 MONTHLY_PRICE_SECTION = {
