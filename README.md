@@ -58,8 +58,8 @@
 
 # 매달 11일 0시 0분에 리셋 (검침 시작일 11일)
 utility_meter:
-  pzemac_energy_monthly:
-    source: sensor.pzemac_energy
+  example_energy_monthly:
+    source: sensor.example_energy
     cycle: monthly
     offset:
       days: 10
@@ -73,12 +73,13 @@ utility_meter:
 ```
 template:
   - sensor:
-      - name: "pzemac_energy_prev_monthly"
-        unique_id: pzemac_energy_prev_monthly
+      - name: "example_energy_prev_monthly"
+        unique_id: example_energy_prev_monthly
         unit_of_measurement: kWh
-        state: "{{ state_attr('sensor.pzemac_energy_monthly','last_period') |round(1) }}"
+        state: "{{ state_attr('sensor.example_energy_monthly','last_period') |round(1) }}"
         device_class: energy
-        state_class: total_increasing
+        attributes:
+          state_class: measurement
 ```
 ### 생성되는 센서
 - 통합구성요소 추가시 이름을 `test`로 했다면 다음과 같은 3개의 센서가 생성됩니다.
@@ -114,4 +115,5 @@ template:
 | v0.0.5  | 2022.10.01  | 22년 10월 단가 인상분 반영 |
 | v0.0.6  | 2023.01.01  | 23년 1월 단가 인상분 반영 |
 | v0.0.7  | 2023.01.07  | 비화성화된 엔터티 업데이트 오류 해결 [@n-andflash](https://github.com/dugurs/kwh_to_won/issues/4) |
+| v0.0.8  | 2023.02.21  | 월간센서 선택 방법 entity selector로 수정 |
 

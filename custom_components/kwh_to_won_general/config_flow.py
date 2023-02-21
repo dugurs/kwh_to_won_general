@@ -2,9 +2,10 @@
 from __future__ import annotations
 from tokenize import Number
 from urllib.parse import quote_plus, unquote
-from homeassistant.const import CONF_NAME, CONF_DEVICE_CLASS, DEVICE_CLASS_ENERGY, ATTR_UNIT_OF_MEASUREMENT, ENERGY_KILO_WATT_HOUR
+from homeassistant.const import CONF_NAME, CONF_DEVICE_CLASS, CONF_MODE, CONF_DEVICE_CLASS, DEVICE_CLASS_ENERGY, CONF_UNIT_OF_MEASUREMENT, ENERGY_KILO_WATT_HOUR
 import voluptuous as vol
 from homeassistant.core import callback
+from homeassistant.helpers.selector import selector
 
 from homeassistant import config_entries
 
@@ -12,13 +13,14 @@ from .const import DOMAIN, WELFARE_DC_OPTION, PRESSURE_OPTION, CHECKDAY_OPTION
 
 # import logging
 # _LOGGER = logging.getLogger(__name__)
+# https://github.com/home-assistant/core/blob/dev/homeassistant/const.py
 
 OPTION_LIST = [
     ("checkday_config", "required", 1, vol.In(CHECKDAY_OPTION)),
     ("pressure_config", "required", "F1-low", vol.In(PRESSURE_OPTION)),
     ("contractKWh_config", "required", 1, vol.All(vol.Coerce(float), vol.Range(min=0))),
     ("welfare_dc_config", "required", 0, vol.In(WELFARE_DC_OPTION)),
-    ("usekwh_entity", "required", "", str),
+    ("usekwh_entity", "required", "", selector({"entity": {"domain": "sensor", CONF_DEVICE_CLASS: DEVICE_CLASS_ENERGY}})),
     ("lagging_entity", "optional", "", str),
     ("leading_entity", "optional", "", str),
     # ("minkwh_entity", "required", "", str),
@@ -56,6 +58,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Optional(name, default=default)
                 )
             data_schema[key] = validation
+
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(data_schema),
