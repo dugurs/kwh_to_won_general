@@ -8,20 +8,16 @@
 import logging
 from tokenize import Number
 from typing import Optional
-from homeassistant.const import (
-    STATE_UNKNOWN,
-    STATE_UNAVAILABLE,
-    CONF_UNIQUE_ID, DEVICE_CLASS_ENERGY, ENERGY_KILO_WATT_HOUR, DEVICE_CLASS_MONETARY
-)
-from homeassistant.components.sensor import ENTITY_ID_FORMAT
+from homeassistant.const import STATE_UNKNOWN, STATE_UNAVAILABLE, CONF_UNIQUE_ID, UnitOfEnergy
+from homeassistant.components.sensor import ENTITY_ID_FORMAT, SensorDeviceClass
 
 import asyncio
 
 from homeassistant import util
-from homeassistant.helpers.entity import Entity
-from .const import DOMAIN, VERSION, MANUFACTURER, MODEL, PRESSURE_OPTION, WELFARE_DC_OPTION
 from homeassistant.helpers.entity import Entity, async_generate_entity_id
 from homeassistant.helpers.event import async_track_state_change
+
+from .const import DOMAIN, VERSION, MANUFACTURER, MODEL, PRESSURE_OPTION, WELFARE_DC_OPTION
 
 from .kwh2won_general_api import kwh2won_api as K2WAPI
 import math
@@ -31,11 +27,11 @@ _LOGGER = logging.getLogger(__name__)
 
 # 센서명, 클래스, 단위, 아이콘
 SENSOR_TYPES = {
-    'kwhto_kwh': ['전기 현재사용량', DEVICE_CLASS_ENERGY, ENERGY_KILO_WATT_HOUR, 'mdi:counter', 'measurement'],
-    'kwhto_won': ['전기 사용요금', DEVICE_CLASS_MONETARY, 'krw', 'mdi:cash-100', 'total_increasing'],
-    'kwhto_forecast': ['전기 예상사용량', DEVICE_CLASS_ENERGY, ENERGY_KILO_WATT_HOUR, 'mdi:counter', 'measurement'],
-    'kwhto_forecast_won': ['전기 예상요금', DEVICE_CLASS_MONETARY, 'krw', 'mdi:cash-100', 'measurement'],
-    'kwhto_won_prev': ['전기 전월 사용요금', DEVICE_CLASS_MONETARY, 'krw', 'mdi:cash-100', 'measurement'],
+    'kwhto_kwh': ['전기 현재사용량', SensorDeviceClass.ENERGY, UnitOfEnergy.KILO_WATT_HOUR, 'mdi:counter', 'measurement'],
+    'kwhto_won': ['전기 사용요금', SensorDeviceClass.MONETARY, 'krw', 'mdi:cash-100', 'total_increasing'],
+    'kwhto_forecast': ['전기 예상사용량', SensorDeviceClass.ENERGY, UnitOfEnergy.KILO_WATT_HOUR, 'mdi:counter', 'measurement'],
+    'kwhto_forecast_won': ['전기 예상요금', SensorDeviceClass.MONETARY, 'krw', 'mdi:cash-100', 'measurement'],
+    'kwhto_won_prev': ['전기 전월 사용요금', SensorDeviceClass.MONETARY, 'krw', 'mdi:cash-100', 'measurement'],
 }
 
 
