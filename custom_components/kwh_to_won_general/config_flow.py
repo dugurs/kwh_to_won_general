@@ -2,7 +2,8 @@
 from __future__ import annotations
 from tokenize import Number
 from urllib.parse import quote_plus, unquote
-from homeassistant.const import CONF_NAME, CONF_DEVICE_CLASS, CONF_MODE, CONF_DEVICE_CLASS, DEVICE_CLASS_ENERGY, CONF_UNIT_OF_MEASUREMENT, ENERGY_KILO_WATT_HOUR
+from homeassistant.const import CONF_NAME, CONF_DEVICE_CLASS
+from homeassistant.components.sensor import SensorDeviceClass
 import voluptuous as vol
 from homeassistant.core import callback
 from homeassistant.helpers.selector import selector
@@ -20,7 +21,7 @@ OPTION_LIST = [
     ("pressure_config", "required", "F1-low", vol.In(PRESSURE_OPTION)),
     ("contractKWh_config", "required", 1, vol.All(vol.Coerce(float), vol.Range(min=0))),
     ("welfare_dc_config", "required", 0, vol.In(WELFARE_DC_OPTION)),
-    ("usekwh_entity", "required", "", selector({"entity": {"domain": "sensor", CONF_DEVICE_CLASS: DEVICE_CLASS_ENERGY}})),
+    ("usekwh_entity", "required", "", selector({"entity": {"domain": "sensor", CONF_DEVICE_CLASS: SensorDeviceClass.ENERGY}})),
     ("lagging_entity", "optional", "", str),
     ("leading_entity", "optional", "", str),
     # ("minkwh_entity", "required", "", str),
