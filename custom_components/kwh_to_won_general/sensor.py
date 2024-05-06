@@ -259,21 +259,21 @@ class ExtendSensor(SensorBase):
             self._usekwh = util.convert(new_state.state, float)
             self._usekwh_row = self._usekwh
         if self.enabled:
-            self.async_schedule_update_ha_state(True)
+            self.schedule_update_ha_state(True)
 
     def lagging_state_listener(self, entity, old_state, new_state):
         """Handle temperature device state changes."""
         if _is_valid_state(new_state):
             self._lagging = util.convert(new_state.state, float)
         if self.enabled:
-            self.async_schedule_update_ha_state(True)
+            self.schedule_update_ha_state(True)
 
     def leading_state_listener(self, entity, old_state, new_state):
         """Handle temperature device state changes."""
         if _is_valid_state(new_state):
             self._leading = util.convert(new_state.state, float)
         if self.enabled:
-            self.async_schedule_update_ha_state(True)
+            self.schedule_update_ha_state(True)
 
 
     def unique_id(self):
