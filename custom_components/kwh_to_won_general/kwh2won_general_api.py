@@ -85,6 +85,14 @@ MONTHLY_PRICE_ADJUSTMENT = {
     '2301': { 'adjustment' : [8.8, 9, 5] }, # RPS 7.7 + ETS 1.1, 석탄발전 감축비용 0.2, 연료비 조정액 +5원
 }
 
+# 전력산업기금 요율
+BASE_FUND = {
+    '2101': { 'baseFundp': 0.037 },
+    '2407': { 'baseFundp': 0.032 },
+    '2507': { 'baseFundp': 0.027 },
+}
+
+
 MONTHLY_PRICE_SECTION = {
     '2101': {
         'F1-low':     { 'section': [[100.7, 60.2, 87.3]] },
@@ -429,8 +437,10 @@ class kwh2won_api:
             basicYymm = self.price_find(MONTHLY_PRICE_BASIC, yymm) # 기본요금
             adjustYymm = self.price_find(MONTHLY_PRICE_ADJUSTMENT, yymm) # 화경비용, 기후환경, 연료비조정
             priceYymm = self.price_find(MONTHLY_PRICE_SECTION, yymm) # 용도, 시즌 시간 별 단가
+            basefundYymm = self.price_find(BASE_FUND, yymm) # 용도, 시즌 시간 별 단가
             price = merge(MONTHLY_PRICE_BASIC[basicYymm][pressure], MONTHLY_PRICE_ADJUSTMENT[adjustYymm])
-            self._ret[mm]['price'] = merge(price, MONTHLY_PRICE_SECTION[priceYymm][pressure])
+            price = merge(price, MONTHLY_PRICE_SECTION[priceYymm][pressure])
+            self._ret[mm]['price'] = merge(price, BASE_FUND[basefundYymm])
 
 
     # 계약전력 5kW, 월간 100kWh 사용시 전기요금 계산, 역률(지상:71%, 진상:91%) 2022/08/11~2022/09/10
@@ -586,6 +596,20 @@ class kwh2won_api:
             _LOGGER.debug(f"사회복지시설 할인 계 {self._ret['welfareDcWon']} = {self._ret['mm1']['welfareDcWon']} + {self._ret['mm2']['welfareDcWon']}")
 
 
+
+    # 전력산업기반기금(10원미만 절사)
+    def base_fund(self,elecSumWon):
+        baseFund = 0
+        for mm in ['mm1','mm2']:
+            baseFundp = self._ret[mm]['price']['baseFundp']
+            baseFund = math.floor(elecSumWon * baseFundp * self._ret[mm]['useDays'] / self._ret['monthDays'])
+            self._ret[mm]['baseFund'] = baseFund
+            _LOGGER.debug(f"전력산업기반기금({self._ret[mm]['yymm']}):{baseFund}원 = 전기요금계{elecSumWon} * {baseFundp} * {self._ret[mm]['useDays']} / {self._ret['monthDays']}")
+        self._ret['baseFund'] = math.floor((self._ret['mm1']['baseFund'] + self._ret['mm2']['baseFund']) /10)*10
+        _LOGGER.debug(f"전력산업기반기금(10원미만 절사):{self._ret['baseFund']}원 = {self._ret['mm1']['baseFund']} + {self._ret['mm2']['baseFund']}")
+        return self._ret['baseFund']
+
+
     # 부가가치세 = 전기요금 x 10% (원미만반올림)
     # 4,271원 = 42,710원 x 10%
 
@@ -594,22 +618,20 @@ class kwh2won_api:
 
     # 청구금액(전기요금계 ＋ 부가가치세 ＋ 전력산업기반기금)
     # : 42,710원 ＋ 4,271원 ＋ 1,580원 ＝ 48,560원(10원미만 절사)
-    def calc_total(salf):
+    def calc_total(self):
         # 부가가치세 = 전기요금 x 10% (원미만반올림)
-        elecSumWon = salf._ret['elecSumWon']
+        elecSumWon = self._ret['elecSumWon']
         vat = round(elecSumWon * 0.1)
-        salf._ret['vat'] = vat
+        self._ret['vat'] = vat
         _LOGGER.debug(f"부가가치세{vat} = 전기요금{elecSumWon} x 10% ")
 
 
         # 전력산업기반기금 = 전기요금 x 3.7% (10원미만 절사)
-        baseFund = math.floor( elecSumWon * 0.037 / 10 ) * 10
-        salf._ret['baseFund'] = baseFund
-        _LOGGER.debug(f"전력산업기반기금{baseFund} = 전기요금{elecSumWon} x 3.7% ")
+        baseFund = self.base_fund(elecSumWon)
 
         # 청구금액 (전기요금계 ＋ 부가가치세 ＋ 전력산업기반기금)
         total = math.floor((elecSumWon + vat + baseFund) / 10 ) * 10
-        salf._ret['total'] = total
+        self._ret['total'] = total
         _LOGGER.debug(f"청구금액{total} = 전기요금{elecSumWon} + 부가가치세{vat} + 전력산업기반기금{baseFund} ")
 
 
@@ -664,7 +686,7 @@ class kwh2won_api:
 # cfg = {
 #     'pressure': 'F2-high-A1',
 #     'checkDay': 11, # 검침일
-#     'today': datetime.datetime(2022,8,20, 22,42,0), # 오늘
+#     'today': datetime.datetime(2024,6,20, 22,42,0), # 오늘
 #     'contractKWh': 5, # 계약전력
 #     'lagging': 71, # 지상역률 
 #     'leading': 91, # 진상역률
